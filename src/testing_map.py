@@ -45,7 +45,7 @@ print(list(map_iterator2))
 '''
 
 
-items = [1, 2, 3, 4, 5]
+items = [1, 2, 3, 4, 56]
 
 def sqr(x, obstacle_list, Node):
     for i in range(len(obstacle_list)):
