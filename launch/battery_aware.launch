@@ -1,0 +1,10 @@
+<launch>
+
+
+
+    <node pkg="bat_wifi_exploration" type="wifi_curr.py" name="current_wifi_node" output="screen"></node>
+
+    <node pkg="bat_wifi_exploration" type="control_decision_2.py" name="control_decision_drone" output="screen"></node>
+
+
+</launch>
