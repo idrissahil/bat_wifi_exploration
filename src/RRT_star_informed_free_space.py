@@ -102,7 +102,7 @@ def rand_node(counter_boost, best_total_distance, min_distance, phi_rotation, x_
         z_rand = z_charge
         # print("boost")
         boost_number[0] = boost_number[0] + 1
-
+    '''
     if counter_boost % 110 == 0:  # Boost the search towards the goal
         x_rand = 500
         y_rand = 500
@@ -130,7 +130,7 @@ def rand_node(counter_boost, best_total_distance, min_distance, phi_rotation, x_
         z_rand = z_charge
         # print("boost")
         boost_number[0] = boost_number[0] + 1
-
+    '''
     #end_rand = time.time()
     #print("rand_node", end_rand - start_rand)
 
@@ -236,7 +236,7 @@ def Collision(x, y, z, obstacle_list):
         #print("dz", dz)
 
 
-        if abs(dx) < 0.25 and abs(dy) < 0.25 and abs(dz) < 0.25:
+        if abs(dx) < 0.4 and abs(dy) < 0.4 and abs(dz) < 0.4:
             print("abs collision check")
             collision = True
             break
@@ -506,7 +506,7 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
         # print("distance travelled",distance_travelled)
         if inside_free==False:
             print("inside free false and length of free", len(free_indexed_list))
-        if collision == False or collision==True:
+        if collision == False:
             print("inside free", inside_free)
             Suc_Node = Node(x=curr_x, y=curr_y, z=curr_z, parent_node=parent_index, x_diff=x_diff, y_diff=y_diff,
                             z_diff=z_diff, total_distance=0)
@@ -521,7 +521,7 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
             print("goal distance", goal_distance2, "new node x", Suc_Node.x)
             if goal_distance_curr <= goal_reach_distance and Suc_Node.total_distance < best_total_distance:
                 print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", goal_distance_curr)
-                #goal_reached = True
+                goal_reached = True
         print("nodes", len(Node_List))
         counter_boost = counter_boost + 1
         if counter_boost>20000:
@@ -561,7 +561,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list):
             total_distance_list.append(success_node.total_distance)
         '''
         if i == 0:
-            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,min_distance*1.5,
+            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,min_distance*3,
                                                                min_distance, phi_rotation)
             nodelist_append(len(Node_List))
             total_distance_append(success_node.total_distance)
@@ -612,7 +612,7 @@ def callback_gps(gps):
         # distance_curr_rrt = math.sqrt(math.pow((gps.pose.position.x - goal_node_list[index_rrt].x), 2) + math.pow((gps.pose.position.y - goal_node_list[index_rrt].y), 2) + math.pow((gps.pose.position.z - goal_node_list[index_rrt].z), 2))
         # if distance_curr_rrt<0.5 and index_rrt<len(goal_node_list)-1:
         #    index_rrt=index_rrt+1
-        '''
+
         for i in range(len(goal_node_list)):
             curr_point_rrt = Pose()
             curr_point_rrt.position.x = goal_node_list[i].x
@@ -635,7 +635,7 @@ def callback_gps(gps):
             curr_point_rrt.orientation.z =  Node_list[i].z_ori
             curr_point_rrt.orientation.w =  Node_list[i].w_ori
             rrt_poses.poses.append(curr_point_rrt)
-
+        '''
         rrt_vis_pub.publish(rrt_poses)
 
         # curr_point_rrt.orientation.z = -3.14 / 2
@@ -657,7 +657,9 @@ def callback_markers(marks):
 
 def callback_free(vis_free):
     global free_list
-    free_list = vis_free.markers[16].points
+    if len(free_list)==0:
+        #print("len free list____________________________________________________________________________________________________", len(free_list))
+        free_list = vis_free.markers[16].points
     #print(free_list)
 
 
