@@ -1,6 +1,7 @@
 import time
 
-
+for i in range(4):
+    print(i)
 class Node():
     def __init__(self, x, y, z, x_diff, y_diff, z_diff, total_distance, parent_node=None, x_ori=0, y_ori=0, z_ori=0, w_ori=0):
         self.x = x
@@ -97,12 +98,12 @@ obstacle_list = [[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3]
 
 
 start_map=time.time()
-list(map(sqr, items, obstacle_list, Suc_Node))
+#list(map(sqr, items, obstacle_list, Suc_Node))
 end_map=time.time()
 print("map time", end_map-start_map)
 
 start_regular=time.time()
-sqr(x_list,obstacle_list,Suc_Node)
+#sqr(x_list,obstacle_list,Suc_Node)
 end_regular=time.time()
 print("regular time", end_regular-start_regular)
 
