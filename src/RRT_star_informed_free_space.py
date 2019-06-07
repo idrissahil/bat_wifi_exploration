@@ -56,7 +56,7 @@ class Node():
 boost_number = [0]
 
 
-def rand_node(counter_boost, best_total_distance, min_distance, phi_rotation, x_half, y_half):
+def rand_node(counter_boost, best_total_distance, min_distance, phi_rotation, x_half, y_half, goal_distance):
     #start_rand = time.time()
     c_best = best_total_distance
     #print(c_best)
@@ -97,46 +97,46 @@ def rand_node(counter_boost, best_total_distance, min_distance, phi_rotation, x_
         y_rand = x_rot * math.sin(phi_rotation) + y_rot * math.cos(phi_rotation) + y_half
         z_rand = random.uniform(z_min, z_max)
         # print("x rand", x_rand)
+    if goal_distance<5:
+        if counter_boost % 10 == 0:  # Boost the search towards the goal
+            x_rand = x_charge
+            y_rand = y_charge
+            z_rand = z_charge
+            # print("boost")
+            boost_number[0] = boost_number[0] + 1
 
-    if counter_boost % 20 == 0:  # Boost the search towards the goal
-        x_rand = x_charge
-        y_rand = y_charge
-        z_rand = z_charge
-        # print("boost")
-        boost_number[0] = boost_number[0] + 1
-    '''
 
+    if goal_distance>5:
+        if counter_boost % 44 == 0:  # Boost the search towards the goal
+            x_rand = 500
+            y_rand = 500
+            z_rand = z_charge
+            # print("boost")
+            boost_number[0] = boost_number[0] + 1
 
-    if counter_boost % 110 == 0:  # Boost the search towards the goal
-        x_rand = 500
-        y_rand = 500
-        z_rand = z_charge
-        # print("boost")
-        boost_number[0] = boost_number[0] + 1
+        if counter_boost % 56 == 0:  # Boost the search towards the goal
+            x_rand = 500
+            y_rand = -500
+            z_rand = z_charge
+            # print("boost")
+            boost_number[0] = boost_number[0] + 1
 
-    if counter_boost % 80 == 0:  # Boost the search towards the goal
-        x_rand = 500
-        y_rand = -500
-        z_rand = z_charge
-        # print("boost")
-        boost_number[0] = boost_number[0] + 1
+        if counter_boost % 39 == 0:  # Boost the search towards the goal
+            x_rand = -500
+            y_rand = 500
+            z_rand = z_charge
+            # print("boost")
+            boost_number[0] = boost_number[0] + 1
 
-    if counter_boost % 90 == 0:  # Boost the search towards the goal
-        x_rand = -500
-        y_rand = 500
-        z_rand = z_charge
-        # print("boost")
-        boost_number[0] = boost_number[0] + 1
+        if counter_boost % 66 == 0:  # Boost the search towards the goal
+            x_rand = -500
+            y_rand = -500
+            z_rand = z_charge
+            # print("boost")
+            boost_number[0] = boost_number[0] + 1
+        #end_rand = time.time()
+        #print("rand_node", end_rand - start_rand)
 
-    if counter_boost % 120 == 0:  # Boost the search towards the goal
-        x_rand = -500
-        y_rand = -500
-        z_rand = z_charge
-        # print("boost")
-        boost_number[0] = boost_number[0] + 1
-    #end_rand = time.time()
-    #print("rand_node", end_rand - start_rand)
-'''
     return x_rand, y_rand, z_rand
 
 
@@ -201,7 +201,7 @@ def index_collision_list(obstacle_list):
     #print(by_rounded_coords[80,80,4])
     return by_rounded_coords
 
-def local_marks_list_finder(x_rounded, y_rounded, z_rounded, indexed_list):
+def local_marks_list_finder(x_rounded, y_rounded, z_rounded, indexed_list, size_list):
     local_marks_list = []
     extend_local_marks=local_marks_list.extend
 
@@ -227,10 +227,10 @@ def local_marks_list_finder(x_rounded, y_rounded, z_rounded, indexed_list):
     extend_local_marks(indexed_list[x_rounded,y_rounded,z_rounded + 2])
     extend_local_marks(indexed_list[x_rounded,y_rounded,z_rounded + 2])
     '''
-    for a in range(6):
-        for b in range(6):
-            for c in range(6):
-                extend_local_marks(indexed_list[x_rounded +a -3, y_rounded + b-3, z_rounded + c-3])
+    for a in range(size_list):
+        for b in range(size_list):
+            for c in range(size_list):
+                extend_local_marks(indexed_list[x_rounded +a -size_list/2, y_rounded + b-size_list/2, z_rounded + c-size_list/2])
 
     return local_marks_list
 
@@ -248,7 +248,7 @@ def Collision(x, y, z, obstacle_list):
         #print("dz", dz)
 
 
-        if abs(dx) < 0.36 and abs(dy) < 0.36 and abs(dz) < 0.36:
+        if abs(dx) < 0.3 and abs(dy) < 0.3 and abs(dz) < 0.3:
             print("abs collision check")
             collision = True
             break
@@ -338,7 +338,7 @@ def go_to_goal2(near_x, near_y, near_z, x_diff, y_diff, z_diff, marks_list, free
     distance_time = 0.01
     step_num = 100
     counter = 0
-    collision_inverval_check=5
+    collision_inverval_check=2
     collision = False
     inside_free =True
     while counter < step_num:
@@ -497,7 +497,7 @@ def find_difference(original, new):
         total_missing_in_orig += len(diff)
     return total_missing_in_orig
 '''
-max_nodes_limit = 1000
+max_nodes_limit = 500
 
 
 def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_total_distance=3000, min_distance=0,
@@ -512,8 +512,8 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
     collision_discards=0
     rewired_number_total=0
     counter_boost = 0
-    x_half = (start_x - x_charge) / 2
-    y_half = (start_y - y_charge) / 2
+    x_half = (x_charge - start_x)/2 + start_x
+    y_half = (y_charge - start_y)/2 + start_y
 
     #x_half = 0
     #y_half = 0
@@ -531,13 +531,13 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
     # print("indexed list", indexed_list)
     while goal_reached == False and len(Node_List) < max_nodes_limit:
         x_rand, y_rand, z_rand = rand_node(counter_boost, best_total_distance, min_distance, phi_rotation, x_half,
-                                           y_half)
+                                           y_half, goal_distance2)
         closest_node, goal_distance, closest_index = find_closest_node(x_rand, y_rand, z_rand, Node_List)
         x_diff, y_diff, z_diff = find_velocity(closest_node, x_rand, y_rand, z_rand)
         x_round = round_of_rating(closest_node.x, -40)
         y_round = round_of_rating(closest_node.y, -40)
         z_round = round_of_rating(closest_node.z, -2)
-        local_marks_list1 = local_marks_list_finder(x_round, y_round, z_round, indexed_list)
+        local_marks_list1 = local_marks_list_finder(x_round, y_round, z_round, indexed_list, 3)
         curr_x, curr_y, curr_z, collision = go_to_goal(closest_node.x, closest_node.y, closest_node.z, x_diff, y_diff,
                                                        z_diff, local_marks_list1)
         parent_index, parent_node, inside_bound_list, dist_list_inside = choose_parent(curr_x, curr_y, curr_z, Node_List, closest_index)
@@ -552,8 +552,8 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
         #z_start_round = round_of_rating(start_z, -2)
 
 
-        local_marks_list2 = local_marks_list_finder(x_round2, y_round2, z_round2, indexed_list)
-        local_free_list = local_marks_list_finder(x_round2, y_round2, z_round2, free_indexed_list)
+        local_marks_list2 = local_marks_list_finder(x_round2, y_round2, z_round2, indexed_list, 3)
+        local_free_list = local_marks_list_finder(x_round2, y_round2, z_round2, free_indexed_list,3)
         #local_free_list_start = local_marks_list_finder(x_start_round, y_start_round, z_start_round, free_indexed_list)
 
         #print("local free list", local_free_list)
@@ -633,7 +633,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list):
             total_distance_list.append(success_node.total_distance)
         '''
         if i == 0:
-            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,20 + min_distance,
+            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,25 + min_distance,
                                                                min_distance, phi_rotation)
             nodelist_append(len(Node_List))
             total_distance_append(success_node.total_distance)
