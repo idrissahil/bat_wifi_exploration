@@ -161,7 +161,7 @@ def find_velocity(closest_node, x_rand, y_rand, z_rand):
     x_diff = x_rand - closest_node.x  # meter per second speed
     y_diff = y_rand - closest_node.y
     z_diff = z_rand - closest_node.z
-    speed_limit = 3
+    speed_limit = 2
     if x_diff > speed_limit:  # max speed set to 1 m/s
         x_diff = speed_limit
     if x_diff < -speed_limit:
@@ -248,7 +248,7 @@ def Collision(x, y, z, obstacle_list):
         #print("dz", dz)
 
 
-        if abs(dx) < 0.3 and abs(dy) < 0.3 and abs(dz) < 0.3:
+        if abs(dx) < 0.36 and abs(dy) < 0.36 and abs(dz) < 0.36:
             print("abs collision check")
             collision = True
             break
@@ -429,7 +429,7 @@ def backtracking(Node_List, final_node):
 
 def choose_parent(curr_x, curr_y, curr_z, node_list, closest_index):
     #start = time.time()
-    bounding_radius = 0.8
+    bounding_radius = 0.5
     dist_list=[]
     dist_list_inside=[]
     inside_bound_list=[]
@@ -446,7 +446,7 @@ def choose_parent(curr_x, curr_y, curr_z, node_list, closest_index):
         dz = curr_z - node_list[i].z
         dist = math.sqrt(math.pow(dx, 2) + math.pow(dy, 2) + math.pow(dz, 2))
 
-        if 0.1<dist < bounding_radius:
+        if 0.1 < dist < bounding_radius:
             inside_bound_list.append(i)
             dist_list_inside.append(dist)
             tot_dist = dist + node_list[i].total_distance * total_distance_constant
@@ -497,7 +497,7 @@ def find_difference(original, new):
         total_missing_in_orig += len(diff)
     return total_missing_in_orig
 '''
-max_nodes_limit = 2000
+max_nodes_limit = 1000
 
 
 def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_total_distance=3000, min_distance=0,
@@ -582,7 +582,7 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
             Suc_Node.total_distance = distance_travelled + parent_node.total_distance
             Node_List_append(Suc_Node)
             Node_List, rewired_number = rewire(inside_bound_list, Suc_Node, Node_List, dist_list_inside, local_marks_list2, local_free_list, start_x, start_y, start_z, free_list)
-            rewired_number_total=rewired_number+rewired_number_total
+            #rewired_number_total=rewired_number+rewired_number_total
             goal_distance_curr = math.sqrt(
                 math.pow((x_charge - Suc_Node.x), 2) + math.pow((y_charge - Suc_Node.y), 2) + math.pow(
                     (z_charge - Suc_Node.z), 2))
@@ -633,7 +633,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list):
             total_distance_list.append(success_node.total_distance)
         '''
         if i == 0:
-            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,10 + min_distance,
+            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,20 + min_distance,
                                                                min_distance, phi_rotation)
             nodelist_append(len(Node_List))
             total_distance_append(success_node.total_distance)
