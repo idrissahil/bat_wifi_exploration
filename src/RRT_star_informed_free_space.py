@@ -430,7 +430,7 @@ def backtracking(Node_List, final_node):
 
 def choose_parent(curr_x, curr_y, curr_z, node_list, closest_index):
     #start = time.time()
-    bounding_radius = 0.5
+    bounding_radius = 0.4
     dist_list=[]
     dist_list_inside=[]
     inside_bound_list=[]
@@ -472,6 +472,7 @@ def choose_parent(curr_x, curr_y, curr_z, node_list, closest_index):
 
 def rewire(inside_bound_list, Suc_node, Node_List, dist_list, local_marks_list, local_free_list, start_x, start_y, start_z, unsorted_free_list):
     rewired_number=0
+    rewired_list=[]
     index_Suc = len(Node_List) - 1
     for i in range(len(inside_bound_list)):
         curr_node = Node_List[inside_bound_list[i]]
@@ -483,9 +484,12 @@ def rewire(inside_bound_list, Suc_node, Node_List, dist_list, local_marks_list, 
             if collision==False and abs(curr_x-curr_node.x)<0.1 and abs(curr_y-curr_node.y)<0.1 and abs(curr_z==curr_node.z) <0.1:
                 curr_node.total_distance = new_total_distance
                 curr_node.parent_node = index_Suc
+                Node_List[inside_bound_list[i]].total_distance = new_total_distance
+                Node_List[inside_bound_list[i]].parent_node = index_Suc
                 print("rewired 2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                rewired_number = 1
-    return Node_List, rewired_number
+                rewired_list.append(inside_bound_list[i])
+                rewired_number = rewired_number + 1
+    return Node_List, rewired_number, rewired_list
 
 
 '''
@@ -498,7 +502,7 @@ def find_difference(original, new):
         total_missing_in_orig += len(diff)
     return total_missing_in_orig
 '''
-max_nodes_limit = 1500
+max_nodes_limit = 1000
 
 
 def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_total_distance=3000, min_distance=0,
@@ -582,14 +586,29 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
             Suc_Node.total_parents = 1 + parent_node.total_parents
             Suc_Node.total_distance = distance_travelled + parent_node.total_distance
             Node_List_append(Suc_Node)
-            Node_List, rewired_number = rewire(inside_bound_list, Suc_Node, Node_List, dist_list_inside, local_marks_list2, local_free_list, start_x, start_y, start_z, free_list)
-            #rewired_number_total=rewired_number+rewired_number_total
-            goal_distance_curr = math.sqrt(
-                math.pow((x_charge - Suc_Node.x), 2) + math.pow((y_charge - Suc_Node.y), 2) + math.pow(
-                    (z_charge - Suc_Node.z), 2))
+            Node_List, rewired_number, rewired_list = rewire(inside_bound_list, Suc_Node, Node_List, dist_list_inside, local_marks_list2, local_free_list, start_x, start_y, start_z, free_list)
+            rewired_number_total=rewired_number+rewired_number_total
+            goal_distance_curr = math.sqrt(math.pow((x_charge - Suc_Node.x), 2) + math.pow((y_charge - Suc_Node.y), 2) + math.pow((z_charge - Suc_Node.z), 2))
+
             if goal_distance_curr < goal_distance2:
                 goal_distance2 = goal_distance_curr
             print("goal distance", goal_distance2, "new node x", Suc_Node.x)
+            if len(rewired_list) >0:
+                for i in range(len(rewired_list)):
+                    curr_node_rewired = Node_List[rewired_list[i]]
+                    goal_distance_curr_rewired = math.sqrt(math.pow((x_charge - curr_node_rewired.x), 2) + math.pow((y_charge - curr_node_rewired.y), 2) + math.pow((z_charge - curr_node_rewired.z), 2))
+                    print("rewired distance", goal_distance_curr_rewired)
+                    if goal_distance_curr_rewired <= goal_reach_distance and curr_node_rewired.total_distance < best_total_distance:
+                        print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", goal_distance_curr_rewired)
+                        goal_reached = True
+
+            '''
+            for i in range(len(inside_bound_list)):
+                curr_node_rewired = Node_List[inside_bound_list[i]]
+                goal_distance_curr_rewired = math.sqrt(
+                    math.pow((x_charge - curr_node_rewired.x), 2) + math.pow((y_charge - curr_node_rewired.y), 2) + math.pow(
+                        (z_charge - curr_node_rewired.z), 2))
+                '''
             if goal_distance_curr <= goal_reach_distance and Suc_Node.total_distance < best_total_distance:
                 print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", goal_distance_curr)
                 goal_reached = True
@@ -634,7 +653,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list):
             total_distance_list.append(success_node.total_distance)
         '''
         if i == 0:
-            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,20 + min_distance,
+            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,5 + min_distance,
                                                                min_distance, phi_rotation)
             nodelist_append(len(Node_List))
             total_distance_append(success_node.total_distance)
