@@ -7,6 +7,7 @@ from geometry_msgs.msg import Twist, PoseArray, Pose, PoseStamped, TwistStamped,
 from sensor_msgs.msg import LaserScan
 from visualization_msgs.msg import MarkerArray, Marker
 from mavros_msgs.msg import PositionTarget
+from nav_msgs.msg import Path
 import random
 import math
 import tf
@@ -17,6 +18,7 @@ rospy.init_node('rrt_charging_drone')
 rrt_pub = rospy.Publisher('/mavros/setpoint_position/local2', PoseStamped, queue_size=1)
 rrt_vis_pub = rospy.Publisher('visual_marker_rrt', PoseArray, queue_size=1)
 rrt_tree_vis_pub = rospy.Publisher('visual_marker_rrt_tree', PoseArray, queue_size=1)
+pub_line_min_dist = rospy.Publisher('line_min_dist', Marker, queue_size=1)
 
 
 rate = rospy.Rate(50)
@@ -336,7 +338,7 @@ def go_to_goal2(near_x, near_y, near_z, x_diff, y_diff, z_diff, marks_list, free
     curr_x = near_x
     curr_y = near_y
     curr_z = near_z
-    distance_time = 0.01
+    distance_time = 0.01/2
     step_num = 100
     counter = 0
     collision_inverval_check=2
@@ -430,7 +432,7 @@ def backtracking(Node_List, final_node):
 
 def choose_parent(curr_x, curr_y, curr_z, node_list, closest_index):
     #start = time.time()
-    bounding_radius = 0.4
+    bounding_radius = 0.8
     dist_list=[]
     dist_list_inside=[]
     inside_bound_list=[]
@@ -587,12 +589,13 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
             Suc_Node.total_distance = distance_travelled + parent_node.total_distance
             Node_List_append(Suc_Node)
             Node_List, rewired_number, rewired_list = rewire(inside_bound_list, Suc_Node, Node_List, dist_list_inside, local_marks_list2, local_free_list, start_x, start_y, start_z, free_list)
-            rewired_number_total=rewired_number+rewired_number_total
+            #rewired_number_total=rewired_number+rewired_number_total
             goal_distance_curr = math.sqrt(math.pow((x_charge - Suc_Node.x), 2) + math.pow((y_charge - Suc_Node.y), 2) + math.pow((z_charge - Suc_Node.z), 2))
 
             if goal_distance_curr < goal_distance2:
                 goal_distance2 = goal_distance_curr
             print("goal distance", goal_distance2, "new node x", Suc_Node.x)
+            '''
             if len(rewired_list) >0:
                 for i in range(len(rewired_list)):
                     curr_node_rewired = Node_List[rewired_list[i]]
@@ -602,7 +605,7 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
                         print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", goal_distance_curr_rewired)
                         goal_reached = True
 
-            '''
+           
             for i in range(len(inside_bound_list)):
                 curr_node_rewired = Node_List[inside_bound_list[i]]
                 goal_distance_curr_rewired = math.sqrt(
@@ -643,7 +646,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list):
     Node_List = [start_node]
     nodelist_append = total_node_list.append
     total_distance_append=total_distance_list.append
-    for i in range(5):  # 100 iterations of rrt
+    for i in range(1):  # 100 iterations of rrt
         print("informed rrt iteration", i)
         print("node list length", len(Node_List))
         '''
@@ -653,7 +656,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list):
             total_distance_list.append(success_node.total_distance)
         '''
         if i == 0:
-            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,5 + min_distance,
+            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,8 + min_distance,
                                                                min_distance, phi_rotation)
             nodelist_append(len(Node_List))
             total_distance_append(success_node.total_distance)
@@ -707,8 +710,42 @@ def callback_gps(gps):
         # distance_curr_rrt = math.sqrt(math.pow((gps.pose.position.x - goal_node_list[index_rrt].x), 2) + math.pow((gps.pose.position.y - goal_node_list[index_rrt].y), 2) + math.pow((gps.pose.position.z - goal_node_list[index_rrt].z), 2))
         # if distance_curr_rrt<0.5 and index_rrt<len(goal_node_list)-1:
         #    index_rrt=index_rrt+1
+        marker = Marker()
+        marker.header.frame_id = "map"
+        marker.type = marker.LINE_STRIP
+        marker.action = marker.ADD
+
+        # marker scale
+        marker.scale.x = 0.03
+        marker.scale.y = 0.03
+        marker.scale.z = 0.03
+
+        # marker color
+        marker.color.a = 1.0
+        marker.color.r = 1.0
+        marker.color.g = 0.0
+        marker.color.b = 0.0
+
+        # marker orientaiton
+        marker.pose.orientation.x = 0.0
+        marker.pose.orientation.y = 0.0
+        marker.pose.orientation.z = 0.0
+        marker.pose.orientation.w = 1.0
+
+        # marker position
+        marker.pose.position.x = 0.0
+        marker.pose.position.y = 0.0
+        marker.pose.position.z = 0.0
+        # marker line points
+        marker.points = []
 
         for i in range(len(goal_node_list)):
+            curr_point_marker = Point()
+            curr_point_marker.x = goal_node_list[i].x
+            curr_point_marker.y = goal_node_list[i].y
+            curr_point_marker.z = goal_node_list[i].z
+            marker.points.append(curr_point_marker)
+
             curr_point_rrt = Pose()
             curr_point_rrt.position.x = goal_node_list[i].x
             curr_point_rrt.position.y =  goal_node_list[i].y
@@ -718,8 +755,8 @@ def callback_gps(gps):
             curr_point_rrt.orientation.z =  goal_node_list[i].z_ori
             curr_point_rrt.orientation.w =  goal_node_list[i].w_ori
             rrt_poses.poses.append(curr_point_rrt)
-            rrt_vis_pub.publish(rrt_poses)
-
+        rrt_vis_pub.publish(rrt_poses)
+        pub_line_min_dist.publish(marker)
 
         for i in range(len(Node_list)):
             curr_point_rrt_tree = Pose()
@@ -731,7 +768,7 @@ def callback_gps(gps):
             curr_point_rrt_tree.orientation.z =  Node_list[i].z_ori
             curr_point_rrt_tree.orientation.w =  Node_list[i].w_ori
             rrt_tree_poses.poses.append(curr_point_rrt_tree)
-            rrt_tree_vis_pub.publish(rrt_tree_poses)
+        rrt_tree_vis_pub.publish(rrt_tree_poses)
 
 
 
@@ -759,12 +796,18 @@ def callback_free(vis_free):
         free_list = vis_free.markers[16].points
     #print(free_list)
 
+'''
+def callback_path(path):
+    for i in range(len(path.poses)):
+        print("path!!!!!!!!!!!!!!", )
 
+'''
 
 def main():
     gps_sub = rospy.Subscriber('/mavros/local_position/pose', PoseStamped, callback_gps)
     vis_mark_sub = rospy.Subscriber('/stl_aeplanner/occupied_cells_vis_array', MarkerArray, callback_markers)
     free_vis_mark_sub = rospy.Subscriber('/stl_aeplanner/free_cells_vis_array', MarkerArray, callback_free)
+    #explore_path_sub = rospy.Subscriber('/stl_aeplanner/ltl_path', Path, callback_path)
     rospy.spin()
 
 
