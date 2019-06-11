@@ -62,7 +62,7 @@ def callback_gps(gps):
         print("percentage lossp", percentage_loss)
         battery_percentage=battery_percentage-percentage_loss
         charge_diff=(math.pow((new_location_x-x_charge), 2) + math.pow((new_location_y-y_charge), 2)+ math.pow((new_location_z-z_charge), 2))
-        total_dist_flown=total_dist_flown+abs(50*percentage_loss/battery_constant)
+        total_dist_flown=total_dist_flown+abs(5*percentage_loss/battery_constant)
         if battery_percentage < 0.1:
             battery_percentage = 0
             print("battery drained")

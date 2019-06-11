@@ -660,14 +660,14 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list, total_distanc
             total_distance_list.append(success_node.total_distance)
         '''
         if i == 0:
-            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,total_distance_flown,
+            success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,total_distance_flown + min_distance,
                                                                min_distance, phi_rotation)
             nodelist_append(len(Node_List))
             total_distance_append(success_node.total_distance)
         curr_time=time.time()
         tot_time=curr_time-start_time
         print("total time", tot_time)
-        if tot_time>2 or abs(success_node.total_distance-min_distance)<1.5:
+        if tot_time>3 or abs(success_node.total_distance-min_distance)<1.5:
             print("too long time", tot_time)
             print("final node positions x y z", success_node.x, success_node.y, success_node.z)
             i=iterations
@@ -728,9 +728,9 @@ def callback_gps(gps):
         marker.action = marker.ADD
 
         # marker scale
-        marker.scale.x = 0.03
-        marker.scale.y = 0.03
-        marker.scale.z = 0.03
+        marker.scale.x = 0.1
+        marker.scale.y = 0.1
+        marker.scale.z = 0.1
 
         # marker color
         marker.color.a = 1.0
