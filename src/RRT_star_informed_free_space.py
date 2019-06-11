@@ -165,7 +165,7 @@ def find_velocity(closest_node, x_rand, y_rand, z_rand):
     x_diff = x_rand - closest_node.x  # meter per second speed
     y_diff = y_rand - closest_node.y
     z_diff = z_rand - closest_node.z
-    speed_limit = 2
+    speed_limit = 3
     if x_diff > speed_limit:  # max speed set to 1 m/s
         x_diff = speed_limit
     if x_diff < -speed_limit:
@@ -433,7 +433,7 @@ def backtracking(Node_List, final_node):
 
 def choose_parent(curr_x, curr_y, curr_z, node_list, closest_index):
     #start = time.time()
-    bounding_radius = 2
+    bounding_radius = 3
     dist_list=[]
     dist_list_inside=[]
     inside_bound_list=[]
@@ -605,6 +605,7 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
                     if goal_distance_curr_rewired <= goal_reach_distance and curr_node_rewired.total_distance < best_total_distance:
                         print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", goal_distance_curr_rewired)
                         goal_reached = True
+                        Suc_Node=curr_node_rewired
 
            
             for i in range(len(inside_bound_list)):
@@ -618,7 +619,7 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
                 goal_reached = True
         print("nodes", len(Node_List))
         counter_boost = counter_boost + 1
-        if counter_boost>20000:
+        if counter_boost>40000:
             break
     controls_x, controls_y, controls_z, x_drone, y_drone, z_drone, goal_node_list = backtracking(Node_List, Suc_Node)
 
@@ -647,7 +648,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list, total_distanc
     Node_List = [start_node]
     nodelist_append = total_node_list.append
     total_distance_append=total_distance_list.append
-    iterations=100
+    iterations=5
     start_time=time.time()
     for i in range(iterations):  # 100 iterations of rrt
         print("informed rrt iteration", i)
@@ -665,7 +666,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list, total_distanc
             total_distance_append(success_node.total_distance)
         curr_time=time.time()
         tot_time=curr_time-start_time
-        if success_node.total_distance<min_distance or tot_time>3:
+        if success_node.total_distance<min_distance or tot_time>3 or abs(success_node.total_distance-min_distance)<2:
             i=iterations
         if i > 0 and i<iterations:
             success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,
