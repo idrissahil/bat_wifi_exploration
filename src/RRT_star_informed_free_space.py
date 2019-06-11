@@ -373,7 +373,7 @@ def go_to_goal2(near_x, near_y, near_z, x_diff, y_diff, z_diff, marks_list, free
 
 
 
-def backtracking(Node_List, final_node):
+def backtracking(Node_List, final_node, final_index):
     #start = time.time()
     controls_x = []
     controls_y = []
@@ -385,7 +385,7 @@ def backtracking(Node_List, final_node):
     next_node=None
     times = []
     # index = len(Node_List)
-    index = len(Node_List) - 1
+    index = final_index
     print(index)
     car_time = 0
     for i in range(final_node.total_parents):
@@ -512,13 +512,14 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
              phi_rotation=0):
     goal_reach_distance = 0.1
     if best_total_distance < 2000:
-        goal_reach_distance = 1
+        goal_reach_distance = 0.1
     goal_reached = False
     goal_distance2 = 50
     free_discards=0
     goto_collision_total=0
     collision_discards=0
     rewired_number_total=0
+    goal_reached_rewired=False
     counter_boost = 0
     x_half = ((start_x - x_charge) / 2)
     y_half = ((start_y - y_charge) / 2)
@@ -602,26 +603,25 @@ def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_to
                     curr_node_rewired = Node_List[rewired_list[i]]
                     goal_distance_curr_rewired = math.sqrt(math.pow((x_charge - curr_node_rewired.x), 2) + math.pow((y_charge - curr_node_rewired.y), 2) + math.pow((z_charge - curr_node_rewired.z), 2))
                     print("rewired distance", goal_distance_curr_rewired)
-                    if goal_distance_curr_rewired <= goal_reach_distance and curr_node_rewired.total_distance < best_total_distance:
-                        print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", goal_distance_curr_rewired)
+                    if goal_distance_curr_rewired <= goal_reach_distance and curr_node_rewired.total_distance < 0.99*best_total_distance:
+                        print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! rewired", goal_distance_curr_rewired)
                         goal_reached = True
                         Suc_Node=curr_node_rewired
-
-           
-            for i in range(len(inside_bound_list)):
-                curr_node_rewired = Node_List[inside_bound_list[i]]
-                goal_distance_curr_rewired = math.sqrt(
-                    math.pow((x_charge - curr_node_rewired.x), 2) + math.pow((y_charge - curr_node_rewired.y), 2) + math.pow(
-                        (z_charge - curr_node_rewired.z), 2))
-
-            if goal_distance_curr <= goal_reach_distance and Suc_Node.total_distance < best_total_distance:
+                        best_total_distance = curr_node_rewired.total_distance
+                        final_index=rewired_list[i]
+                        goal_reached_rewired = True
+            if goal_distance_curr <= goal_reach_distance and Suc_Node.total_distance < 0.99*best_total_distance:
                 print("reached !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", goal_distance_curr)
                 goal_reached = True
+                #final_index=len(Node_List) -1
         print("nodes", len(Node_List))
         counter_boost = counter_boost + 1
         if counter_boost>40000:
             break
-    controls_x, controls_y, controls_z, x_drone, y_drone, z_drone, goal_node_list = backtracking(Node_List, Suc_Node)
+    if goal_reached_rewired==False:
+        final_index=len(Node_List)-1
+        print("maxed lenn")
+    controls_x, controls_y, controls_z, x_drone, y_drone, z_drone, goal_node_list = backtracking(Node_List, Suc_Node, final_index)
 
     print("number of nodes", len(Node_List))
     print("boost number", boost_number)
@@ -666,7 +666,10 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list, total_distanc
             total_distance_append(success_node.total_distance)
         curr_time=time.time()
         tot_time=curr_time-start_time
-        if success_node.total_distance<min_distance or tot_time>3 or abs(success_node.total_distance-min_distance)<2:
+        print("total time", tot_time)
+        if tot_time>2 or abs(success_node.total_distance-min_distance)<1.5:
+            print("too long time", tot_time)
+            print("final node positions x y z", success_node.x, success_node.y, success_node.z)
             i=iterations
         if i > 0 and i<iterations:
             success_node, Node_List, goal_node_list = main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list,

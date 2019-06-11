@@ -22,6 +22,8 @@ x_charge=3
 y_charge=3
 z_charge = 1
 time_begin=None
+counter = 0
+
 def callback_gps(gps):
     global total_dist_flown
     global x_charge
@@ -33,9 +35,12 @@ def callback_gps(gps):
     global old_location_y
     global old_location_z
     global time_begin
+    global counter
+
     time_now = rospy.get_rostime()
     if time_begin==None:
         time_begin = rospy.get_rostime()
+
     if not time_now>time_begin:
         print('not_yet_started')
         old_location_x=gps.pose.position.x
@@ -47,7 +52,7 @@ def callback_gps(gps):
         battery.percentage = battery_percentage
         battery_pub.publish(battery)
 
-    if time_now>time_begin:
+    if time_now>time_begin and counter%1==0:
         print('started')
         new_location_x = gps.pose.position.x
         new_location_y = gps.pose.position.y
@@ -57,7 +62,7 @@ def callback_gps(gps):
         print("percentage lossp", percentage_loss)
         battery_percentage=battery_percentage-percentage_loss
         charge_diff=(math.pow((new_location_x-x_charge), 2) + math.pow((new_location_y-y_charge), 2)+ math.pow((new_location_z-z_charge), 2))
-        total_dist_flown=total_dist_flown+abs(percentage_loss)
+        total_dist_flown=total_dist_flown+abs(50*percentage_loss/battery_constant)
         if battery_percentage < 0.1:
             battery_percentage = 0
             print("battery drained")
@@ -66,7 +71,6 @@ def callback_gps(gps):
             if battery_percentage>100:
                 battery_percentage=100
                 print("fully charged")
-
         battery = BatteryState()
         battery.percentage = battery_percentage
         battery_pub.publish(battery)
@@ -76,6 +80,7 @@ def callback_gps(gps):
         pose_dist=PoseStamped()
         pose_dist.pose.orientation.w=total_dist_flown
         dist_pub.publish(pose_dist)
+    counter = counter + 1
     print('battery_percentage', battery_percentage)
     print("total dist travelled", total_dist_flown)
 
