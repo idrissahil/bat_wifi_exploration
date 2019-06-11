@@ -21,6 +21,7 @@ total_dist_flown = 0
 x_charge=3
 y_charge=3
 z_charge = 1
+time_begin=None
 def callback_gps(gps):
     global total_dist_flown
     global x_charge
@@ -31,9 +32,11 @@ def callback_gps(gps):
     global old_location_x
     global old_location_y
     global old_location_z
-    time_begin = rospy.Time(600)
+    global time_begin
     time_now = rospy.get_rostime()
-    if time_now<time_begin:
+    if time_begin==None:
+        time_begin = rospy.get_rostime()
+    if not time_now>time_begin:
         print('not_yet_started')
         old_location_x=gps.pose.position.x
         old_location_y=gps.pose.position.y

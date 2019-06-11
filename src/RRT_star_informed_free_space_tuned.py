@@ -490,7 +490,7 @@ def find_difference(original, new):
         total_missing_in_orig += len(diff)
     return total_missing_in_orig
 '''
-max_nodes_limit = 1000
+max_nodes_limit = 500
 
 
 def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_total_distance=3000, min_distance=0,
@@ -616,7 +616,7 @@ def informed_rrt(start_x, start_y, start_z, marks_list, free_list):
     Node_List = [start_node]
     nodelist_append = total_node_list.append
     total_distance_append=total_distance_list.append
-    for i in range(5):  # 100 iterations of rrt
+    for i in range(1):  # 100 iterations of rrt
         print("informed rrt iteration", i)
         print("node list length", len(Node_List))
         '''
@@ -691,7 +691,7 @@ def callback_gps(gps):
             curr_point_rrt.orientation.z =  goal_node_list[i].z_ori
             curr_point_rrt.orientation.w =  goal_node_list[i].w_ori
             rrt_poses.poses.append(curr_point_rrt)
-            rrt_vis_pub.publish(rrt_poses)
+        rrt_vis_pub.publish(rrt_poses)
 
 
         for i in range(len(Node_list)):
@@ -704,7 +704,7 @@ def callback_gps(gps):
             curr_point_rrt_tree.orientation.z =  Node_list[i].z_ori
             curr_point_rrt_tree.orientation.w =  Node_list[i].w_ori
             rrt_tree_poses.poses.append(curr_point_rrt_tree)
-            rrt_tree_vis_pub.publish(rrt_tree_poses)
+        rrt_tree_vis_pub.publish(rrt_tree_poses)
 
 
 
