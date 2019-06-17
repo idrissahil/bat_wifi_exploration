@@ -2,6 +2,7 @@
 
 import rospy
 import math
+import tf
 from sensor_msgs.msg import BatteryState
 from geometry_msgs.msg import Twist, PoseArray, Pose, PoseStamped
 
@@ -41,6 +42,19 @@ def callback_gps(gps):
             go_to_home.pose.position.x= 0
             go_to_home.pose.position.y = 0
             go_to_home.pose.position.z= 1
+
+            dx = x_charge - curr_pos[0]
+            dy = y_charge - curr_pos[1]
+            dz = z_charge - curr_pos[2]
+
+            yaw=math.atan2(dy, dx)
+            pitch = math.atan2(math.sqrt(dy * dy + dx * dx), dz)
+            quat = tf.transformations.quaternion_from_euler(0, pitch, yaw, 'syxz')
+            go_to_home.pose.orientation.x = quat[0]
+            go_to_home.pose.orientation.y= quat[1]
+            go_to_home.pose.orientation.z = quat[2]
+            go_to_home.pose.orientation.w = quat[3]
+
             go_to_home.header.frame_id = "map"
             control_decision_pub.publish(go_to_home)
 
