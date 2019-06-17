@@ -24,9 +24,9 @@ def callback_lidar(scan):
     #global increment
 
     search_points = PoseStamped()
-    search_points.pose.position.x = 2
-    search_points.pose.position.y = 2
-    search_points.pose.position.z = 10
+    search_points.pose.position.x = -15
+    search_points.pose.position.y = 0
+    search_points.pose.position.z = 1
     search_points.pose.orientation.w = 1
     search_points.pose.orientation.z = 1
 

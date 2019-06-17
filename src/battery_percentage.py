@@ -12,7 +12,7 @@ dist_pub = rospy.Publisher('distance_flown', PoseStamped, queue_size=1)
 
 rate = rospy.Rate(50)
 battery_percentage=1
-battery_constant=20
+battery_constant=30
 #save previous state of gps, calculate difference and use constant that calculates how much battery drained
 old_location_x=1
 old_location_y=1
@@ -52,7 +52,7 @@ def callback_gps(gps):
         battery.percentage = battery_percentage
         battery_pub.publish(battery)
 
-    if time_now>time_begin and counter%1==0:
+    if time_now>time_begin:
         print('started')
         new_location_x = gps.pose.position.x
         new_location_y = gps.pose.position.y
@@ -62,7 +62,7 @@ def callback_gps(gps):
         print("percentage lossp", percentage_loss)
         battery_percentage=battery_percentage-percentage_loss
         charge_diff=(math.pow((new_location_x-x_charge), 2) + math.pow((new_location_y-y_charge), 2)+ math.pow((new_location_z-z_charge), 2))
-        total_dist_flown=total_dist_flown+abs(5*percentage_loss/battery_constant)
+        total_dist_flown=total_dist_flown+abs(25*percentage_loss/battery_constant)
         if battery_percentage < 0.1:
             battery_percentage = 0
             print("battery drained")
