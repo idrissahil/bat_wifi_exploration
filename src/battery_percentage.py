@@ -12,14 +12,14 @@ dist_pub = rospy.Publisher('distance_flown', PoseStamped, queue_size=1)
 
 rate = rospy.Rate(50)
 battery_percentage=1
-battery_constant=30
+battery_constant=1
 #save previous state of gps, calculate difference and use constant that calculates how much battery drained
 old_location_x=1
 old_location_y=1
 old_location_z=1
 total_dist_flown = 0
-x_charge=3
-y_charge=3
+x_charge=0
+y_charge=0
 z_charge = 1
 time_begin=None
 counter = 0
@@ -58,16 +58,17 @@ def callback_gps(gps):
         new_location_y = gps.pose.position.y
         new_location_z = gps.pose.position.z
 
-        percentage_loss=battery_constant*(math.pow((new_location_x-old_location_x), 2) + math.pow((new_location_y-old_location_y), 2)+ math.pow((new_location_z-old_location_z), 2))
+        percentage_loss=battery_constant*math.sqrt((math.pow((new_location_x-old_location_x), 2) + math.pow((new_location_y-old_location_y), 2)+ math.pow((new_location_z-old_location_z), 2)))
         print("percentage lossp", percentage_loss)
         battery_percentage=battery_percentage-percentage_loss
-        charge_diff=(math.pow((new_location_x-x_charge), 2) + math.pow((new_location_y-y_charge), 2)+ math.pow((new_location_z-z_charge), 2))
-        total_dist_flown=total_dist_flown+abs(25*percentage_loss/battery_constant)
+        charge_diff=math.sqrt((math.pow((new_location_x-x_charge), 2) + math.pow((new_location_y-y_charge), 2)+ math.pow((new_location_z-z_charge), 2)))
+        total_dist_flown=total_dist_flown+abs(percentage_loss/battery_constant)
         if battery_percentage < 0.1:
             battery_percentage = 0
             print("battery drained")
+            # 83 m is the total distance that you can travel with the drone.
         if charge_diff<0.5:
-            battery_percentage=battery_percentage+0.1
+            battery_percentage=battery_percentage
             if battery_percentage>100:
                 battery_percentage=100
                 print("fully charged")

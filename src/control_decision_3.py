@@ -14,32 +14,35 @@ curr_pos = [0,0,0]
 rrt_list=[]
 battery_percentage = 1000
 exploration_point_x = 1000
-
+x_charge=0
+y_charge=0
+z_charge = 1
+dist_home=0
 def callback_gps(gps):
     global curr_pos
     global rrt_list
     global state
     global battery_percentage
     global exploration_point_x
+    global dist_home
     if battery_percentage<1000 and exploration_point_x <1000:
         if state==1:
             curr_pos[0]=gps.pose.position.x
             curr_pos[1]=gps.pose.position.y
             curr_pos[2]=gps.pose.position.z
+            dist_home = math.sqrt((math.pow((curr_pos[0]-x_charge), 2) + math.pow((curr_pos[1]-y_charge), 2)+ math.pow((curr_pos[2]-z_charge), 2)))
+            print("dist home", dist_home)
 
-        if battery_percentage < 0.1:
+
+        if battery_percentage < dist_home +5:
             state=2
             print(state)
-            hold_position=PoseStamped()
-            #hold_position.pose.position.x= 0
-            #hold_position.pose.position.y = 14
-            #hold_position.pose.position.z= 1
-
-            hold_position.pose.position.x= curr_pos[0]
-            hold_position.pose.position.y = curr_pos[1]
-            hold_position.pose.position.z= curr_pos[2]
-            hold_position.header.frame_id = "map"
-            control_decision_pub.publish(hold_position)
+            go_to_home=PoseStamped()
+            go_to_home.pose.position.x= 0
+            go_to_home.pose.position.y = 0
+            go_to_home.pose.position.z= 1
+            go_to_home.header.frame_id = "map"
+            control_decision_pub.publish(go_to_home)
 
 def callback_battery(battery):
     global battery_percentage
