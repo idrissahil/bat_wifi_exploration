@@ -7,7 +7,7 @@ from geometry_msgs.msg import Twist, PoseArray, Pose, PoseStamped
 
 rospy.init_node('battery_percentage_node')
 
-battery_pub = rospy.Publisher('battery_percentage', BatteryState, queue_size=1)
+battery_pub = rospy.Publisher('battery_percentage', PoseStamped, queue_size=1)
 dist_pub = rospy.Publisher('distance_flown', PoseStamped, queue_size=1)
 
 rate = rospy.Rate(50)
@@ -36,7 +36,7 @@ def callback_gps(gps):
     global old_location_z
     global time_begin
     global counter
-
+    battery_cost=True
     time_now = rospy.get_rostime()
     if time_begin==None:
         time_begin = rospy.get_rostime()
@@ -47,9 +47,11 @@ def callback_gps(gps):
         old_location_y=gps.pose.position.y
         old_location_z=gps.pose.position.z
 
-        battery = BatteryState()
+        battery = PoseStamped()
         battery_percentage=100
-        battery.percentage = battery_percentage
+        battery.pose.position.x = battery_percentage
+        if battery_cost == True:
+            battery.pose.position.y = 1
         battery_pub.publish(battery)
 
     if time_now>time_begin:
@@ -72,9 +74,13 @@ def callback_gps(gps):
             if battery_percentage>100:
                 battery_percentage=100
                 print("fully charged")
-        battery = BatteryState()
-        battery.percentage = battery_percentage
+
+        battery = PoseStamped()
+        battery.pose.position.x = battery_percentage
+        if battery_cost == True:
+            battery.pose.position.y = 1
         battery_pub.publish(battery)
+
         old_location_x=new_location_x
         old_location_y=new_location_y
         old_location_z=new_location_z

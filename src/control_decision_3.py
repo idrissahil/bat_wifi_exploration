@@ -60,7 +60,7 @@ def callback_gps(gps):
 
 def callback_battery(battery):
     global battery_percentage
-    battery_percentage=battery.percentage
+    battery_percentage=battery.pose.position.x
 
 def callback_exploration(explore):
     global state
@@ -74,7 +74,7 @@ def callback_exploration(explore):
 
 def main():
     exploration_sub = rospy.Subscriber('/mavros/setpoint_position/local1', PoseStamped, callback_exploration)
-    battery_sub = rospy.Subscriber('battery_percentage', BatteryState, callback_battery)
+    battery_sub = rospy.Subscriber('battery_percentage', PoseStamped, callback_battery)
     gps_sub = rospy.Subscriber('/mavros/local_position/pose', PoseStamped, callback_gps)
 
     rospy.spin()
