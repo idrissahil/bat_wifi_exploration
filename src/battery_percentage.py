@@ -77,6 +77,7 @@ def callback_gps(gps):
 
         battery = PoseStamped()
         battery.pose.position.x = battery_percentage
+        battery.pose.position.y = 0
         if battery_cost == True:
             battery.pose.position.y = 1
         battery_pub.publish(battery)
