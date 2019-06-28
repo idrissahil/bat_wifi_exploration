@@ -36,7 +36,7 @@ def callback_gps(gps):
     global old_location_z
     global time_begin
     global counter
-    battery_cost=True
+    battery_cost=False
     time_now = rospy.get_rostime()
     if time_begin==None:
         time_begin = rospy.get_rostime()
@@ -68,7 +68,7 @@ def callback_gps(gps):
         if battery_percentage < 0.1:
             battery_percentage = 0
             print("battery drained")
-            # 83 m is the total distance that you can travel with the drone.
+            # 100 m is the total distance that you can travel with the drone by default
         if charge_diff<0.5:
             battery_percentage=battery_percentage
             if battery_percentage>100:
