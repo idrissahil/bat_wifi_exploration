@@ -31,17 +31,19 @@ def callback_gps(gps):
     if len(rrt_list)>1:
         state=2
         print(state)
-        dist_point = math.sqrt(math.pow(rrt_list[index].x - curr_pos[0],2)+math.pow(rrt_list[index].y - curr_pos[1],2)+math.pow(rrt_list[index].z - curr_pos[2],2))
-        if dist_point<0.1:
+        dist_point = math.sqrt(math.pow(rrt_list[index].position.x - curr_pos[0], 2)+math.pow(rrt_list[index].position.y - curr_pos[1], 2)+math.pow(rrt_list[index].position.z - curr_pos[2], 2))
+        if dist_point<0.2:
             index=index+1
+            if index==len(rrt_list):
+                index=index-1
         curr_position=PoseStamped()
         #hold_position.pose.position.x= 0
         #hold_position.pose.position.y = 14
         #hold_position.pose.position.z= 1
 
-        curr_position.pose.position.x= rrt_list[index].x
-        curr_position.pose.position.y= rrt_list[index].y
-        curr_position.pose.position.z= rrt_list[index].z
+        curr_position.pose.position.x= rrt_list[index].position.x
+        curr_position.pose.position.y= rrt_list[index].position.y
+        curr_position.pose.position.z= rrt_list[index].position.z
         curr_position.header.frame_id = "map"
         control_decision_pub.publish(curr_position)
 

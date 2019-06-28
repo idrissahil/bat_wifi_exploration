@@ -36,7 +36,7 @@ def callback_gps(gps):
     global old_location_z
     global time_begin
     global counter
-    battery_cost=False
+    battery_cost=True
     time_now = rospy.get_rostime()
     if time_begin==None:
         time_begin = rospy.get_rostime()

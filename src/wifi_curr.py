@@ -10,9 +10,9 @@ rospy.init_node('current_wifi_node')
 wifi_pub = rospy.Publisher('wifi_curr', Temperature, queue_size=1)
 rate = rospy.Rate(50)
 
-sigma_x=5
-sigma_y=5
-sigma_z=5
+sigma_x=10
+sigma_y=10
+sigma_z=10
 
 x_my=0
 y_my=0

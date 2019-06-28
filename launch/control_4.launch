@@ -1,0 +1,14 @@
+<launch>
+
+
+
+    <node pkg="bat_wifi_exploration" type="wifi_curr.py" name="current_wifi_node" output="screen"></node>
+
+    <node pkg="bat_wifi_exploration" type="control_decision_4.py" name="control_decision_drone" output="screen"></node>
+
+    <node pkg="bat_wifi_exploration" type="wifi_distribution_fsolve.py" name="wifi_estimation" output="screen"></node>
+
+    <node pkg="bat_wifi_exploration" type="battery_percentage.py" name="battery_percentage" output="screen"></node>
+
+
+</launch>

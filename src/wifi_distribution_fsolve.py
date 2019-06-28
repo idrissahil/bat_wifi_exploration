@@ -15,9 +15,9 @@ rate = rospy.Rate(50)
 
 curr_wifi=0
 first_set=[]
-initial_sigma_x=2
-initial_sigma_y=2
-initial_sigma_z=2
+initial_sigma_x=4
+initial_sigma_y=4
+initial_sigma_z=4
 
 x_my=0
 y_my=0
