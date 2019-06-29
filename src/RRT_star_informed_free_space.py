@@ -505,7 +505,7 @@ def find_difference(original, new):
         total_missing_in_orig += len(diff)
     return total_missing_in_orig
 '''
-max_nodes_limit = 500
+max_nodes_limit = 2000
 
 
 def main_rrt(Node_List, start_x, start_y, start_z, marks_list,free_list, best_total_distance=3000, min_distance=0,
@@ -735,7 +735,7 @@ def callback_gps(gps):
         # marker color
         marker.color.a = 1.0
         marker.color.r = 1.0
-        marker.color.g = 0.0
+        marker.color.g = 1.0
         marker.color.b = 0.0
 
         # marker orientaiton

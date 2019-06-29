@@ -32,7 +32,7 @@ def callback_gps(gps):
         state=2
         print(state)
         dist_point = math.sqrt(math.pow(rrt_list[index].position.x - curr_pos[0], 2)+math.pow(rrt_list[index].position.y - curr_pos[1], 2)+math.pow(rrt_list[index].position.z - curr_pos[2], 2))
-        if dist_point<0.2:
+        if dist_point<0.3:
             index=index+1
             if index==len(rrt_list):
                 index=index-1
